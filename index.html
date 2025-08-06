@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWO System Documentation</title>
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Define a vibrant color scheme */
+        :root {
+            --primary-blue: #007bff; /* Bright Blue */
+            --secondary-purple: #6f42c1; /* Deep Purple */
+            --accent-green: #28a745; /* Emerald Green */
+            --accent-orange: #fd7e14; /* Vibrant Orange */
+            --accent-red: #dc3545; /* Crimson Red */
+            --light-bg: #f8f9fa; /* Light Grey Background */
+            --dark-text: #343a40; /* Dark Grey Text */
+            --code-bg: #212529; /* Dark Code Background */
+            --code-text: #e9ecef; /* Light Code Text */
+            --border-color: #dee2e6; /* Light Border */
+            --box-shadow: rgba(0, 0, 0, 0.1);
+            --hover-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Sans-serif for main text */
+            line-height: 1.6;
+            color: var(--dark-text);
+            background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%); /* Subtle gradient */
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Full viewport height */
+        }
+
+        /* Typography for code snippets */
+        pre, code {
+            font-family: 'Fira Code', 'Courier New', monospace; /* Monospace for code */
+        }
+
+        /* Main layout container for two columns */
+        .main-layout-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Left Panel (Branding + Sidebar) */
+        .left-panel {
+            width: 280px; /* Fixed width for the left panel on desktop */
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-purple) 100%);
+            color: white;
+            flex-shrink: 0; /* Prevent shrinking */
+            overflow-y: auto; /* Scrollable if content overflows */
+            box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+            display: flex; /* Use flex for internal stacking of branding and nav */
+            flex-direction: column;
+        }
+
+        .branding {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(0,0,0,0.1); /* Slightly darker background for branding */
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .branding i {
+            margin-bottom: 1rem;
+            color: var(--accent-green); /* Green icon */
+        }
+
+        .branding h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            line-height: 1.3;
+        }
+
+        /* Sidebar navigation */
+        .sidebar {
+            flex-grow: 1; /* Allow sidebar to take remaining height */
+            padding: 1rem 0;
+        }
+
+        .sidebar h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--accent-orange); /* Orange accent for sidebar title */
+            padding-bottom: 0.5rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: #adb5bd; /* Lighter grey for links */
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-left: 4px solid transparent; /* Highlight on hover/active */
+        }
+
+        .sidebar nav ul li a:hover,
+        .sidebar nav ul li a.active {
+            background-color: #495057; /* Darker grey on hover */
+            color: white;
+            border-left-color: var(--accent-green); /* Highlight color */
+        }
+
+        /* Right Content Wrapper */
+        .right-content-wrapper {
+            flex-grow: 1; /* Allow content to take remaining space */
+            background-color: var(--light-bg); /* Match body background for continuity */
+            padding: 2rem 4rem; /* Increased horizontal padding for more content space */
+            overflow-y: auto; /* Scrollable main content */
+            max-width: calc(100% - 280px); /* Ensure it doesn't overflow left panel */
+        }
+
+        /* Hero section */
+        .hero {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #4CAF50 100%); /* Green gradient */
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Section styles */
+        section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px var(--box-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--hover-shadow);
+        }
+
+        h2 {
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--accent-orange);
+            padding-bottom: 0.7rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--secondary-purple);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        /* Styled boxes for SOPs and Optimizations */
+        .styled-box {
+            background: #e9f5ff; /* Light blue background */
+            border-left: 5px solid var(--primary-blue);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
+        }
+
+        .styled-box.warning {
+            background: #fff3cd; /* Light yellow background */
+            border-left-color: var(--accent-orange);
+            box-shadow: 0 2px 10px rgba(253, 126, 20, 0.1);
+        }
+
+        .styled-box.danger {
+            background: #f8d7da; /* Light red background */
+            border-left-color: var(--accent-red);
+            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
+        }
+
+        /* Optimization cards layout */
+        .optimization-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .optimization-card {
+            background: #f8f9fa; /* Lighter background for cards */
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border-top: 5px solid var(--primary-blue); /* Default border */
+        }
+
+        .optimization-card:nth-child(2) { border-top-color: var(--accent-green); }
+        .optimization-card:nth-child(3) { border-top-color: var(--secondary-purple); }
+
+        .optimization-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .optimization-card h3 {
+            color: var(--primary-blue);
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        /* Code block styling */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+        }
+
+        pre code {
+            display: block; /* Ensures code takes full width */
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary-purple);
+            transform: translateY(-2px);
+        }
+
+        /* Mermaid diagram styling */
+        .mermaid {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto; /* Enable horizontal scroll for large diagrams */
+            text-align: center; /* Center the diagram */
+        }
+
+        /* Accordion (details/summary) styling */
+        details {
+            background: #f0f4f8; /* Light background for accordion */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        details[open] {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        summary {
+            background: var(--primary-blue);
+            color: white;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        summary:hover {
+            background: var(--secondary-purple);
+        }
+
+        summary::marker {
+            display: none; /* Hide default marker */
+        }
+
+        summary::-webkit-details-marker {
+            display: none; /* Hide default marker for Webkit */
+        }
+
+        summary .icon {
+            transition: transform 0.3s ease;
+        }
+
+        details[open] summary .icon {
+            transform: rotate(90deg); /* Rotate icon when open */
+        }
+
+        .accordion-content {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Search bar */
+        .search-container {
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0; /* Stick to the top of its container */
+            background-color: #f0f2f5; /* Match body background */
+            padding: 1rem 0;
+            z-index: 50; /* Ensure it's above sections when scrolling */
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .search-container input[type="text"] {
+            width: calc(100% - 2rem);
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            transition: border-color 0.3s ease;
+        }
+
+        .search-container input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Table styles for schema and example data */
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling for tables on small screens */
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8f8f8; /* Light stripe for readability */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f0f4f8; /* Highlight row on hover */
+        }
+
+        /* Footer styles */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--dark-text);
+            color: white;
+            margin-top: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 -4px 12px var(--box-shadow);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .main-layout-container {
+                flex-direction: column; /* Stack panels on smaller screens */
+            }
+
+            .left-panel {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: 0 2px 10px var(--box-shadow);
+            }
+
+            .branding {
+                padding: 1.5rem 1rem;
+            }
+
+            .branding i {
+                margin-bottom: 0.5rem;
+            }
+
+            .branding h1 {
+                font-size: 1.3rem;
+            }
+
+            .sidebar h2 {
+                margin-left: 0.5rem;
+                margin-right: 0.5rem;
+            }
+
+            .sidebar nav ul {
+                flex-direction: row; /* Horizontal navigation on smaller screens */
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .sidebar nav ul li a {
+                padding: 0.6rem 1rem;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+
+            .sidebar nav ul li a:hover,
+            .sidebar nav ul li a.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--accent-green);
+            }
+
+            .right-content-wrapper {
+                padding: 1.5rem;
+                max-width: 100%; /* Take full width */
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .optimization-cards-grid {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .branding h1 {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .copy-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+            }
+
+            .search-container input[type="text"] {
+                width: calc(100% - 1.5rem);
+                padding: 0.6rem 0.8rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .left-panel {
+            animation: slideInLeft 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout-container">
+        <div class="left-panel">
+            <div class="branding">
+                <i class="fas fa-cogs fa-3x"></i> <!-- Larger icon -->
+                <h1>System Overview Analysis and Documentation</h1>
+            </div>
+            <div class="sidebar">
+                <h2>Navigation</h2>
+                <nav>
+                    <ul>
+                        <li><a href="#mental-model">Mental Model</a></li>
+                        <li><a href="#sops">SOPs</a></li>
+                        <li><a href="#data-model">Data Model</a></li>
+                        <li><a href="#optimizations">Optimizations</a></li>
+                        <li><a href="#tables">Tables</a></li>
+                        <li><a href="#workflows">Workflows</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="right-content-wrapper">
+            <section class="hero">
+                <h1>Comprehensive SWO System Documentation</h1>
+                <p>Explore the intricate details of the SWO System, covering data flows, database schemas, operational procedures, and maintenance guidelines.</p>
+            </section>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search sections or content...">
+            </div>
+
+            <section id="mental-model">
+                <h2>🌐 System Mental Model</h2>
+                <div class="mermaid">
+                    mindmap
+                      root((SWO System))
+                        Database_Structure
+                          SWO_Table
+                            Columns
+                            Data_Types
+                            Relationships
+                          Supporting_Tables
+                            PIC_tbl
+                            interval_report_tbl
+                            site_down_tbl
+                        Data_Flow
+                          Sources
+                            MS_Outlook
+                            OMCR_Reports
+                            MOC_CA
+                          Processing
+                            Python_Scripts
+                            SQL_Queries
+                          Outputs
+                            Monitoring_Reports
+                            Analysis_Dashboards
+                        Maintenance
+                          Monthly_Updates
+                          Schema_Optimization
+                          Data_Quality_Checks
+                        Documentation
+                          Schema_Docs
+                          SOPs
+                          Change_Logs
+                </div>
+            </section>
+
+            <section id="sops">
+                <h2>📋 Standard Operating Procedures</h2>
+                <details open>
+                    <summary>Monthly SWO Update SOP <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content styled-box">
+                        <h3>Monthly SWO Update SOP</h3>
+                        <p><strong>Data Collection:</strong> Receive updated data from MS Outlook Mail.<br>
+                        <strong>Data Validation:</strong> Check for completeness and accuracy.<br>
+                        <strong>Schema Compliance:</strong> Ensure data matches SWO table structure.<br>
+                        <strong>Data Transformation:</strong> Convert formats as needed (especially dates).<br>
+                        <strong>Database Update:</strong> Execute SQL update scripts.<br>
+                        <strong>Verification:</strong> Run validation queries to confirm successful update.<br>
+                        <strong>Documentation:</strong> Record update completion in system log.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section id="optimizations">
+                <h2>🚀 System Optimization Recommendations</h2>
+                <div class="optimization-cards-grid">
+                    <div class="optimization-card">
+                        <h3>Database Improvements:</h3>
+                        <ul>
+                            <li>Implement automated data validation checks before updates</li>
+                            <li>Add change tracking to all critical tables.</li>
+                            <li>Create stored procedures for common update operations.</li>
+                            <li>Set up regular index maintenance jobs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="optimization-card">
+                        <h3>Process Improvements:</h3>
+                        <ul>
+                            <li>Automate data collection from Outlook where possible.</li>
+                            <li>Implement alerting for failed data loads.</li>
+                            <li>Create standardized data quality reports.</li>
+                            <li>Develop a testing environment for schema changes.</li>
+                        </ul>
+                    </div>
+
+                    <div class="optimization-card">
+                        <h3>Documentation Improvements:</h3>
+                        <ul>
+                            <li>Document all ETL workflows in detail.</li>
+                            <li>Create a data lineage diagram.</li>
+                            <li>Maintain an up-to-date schema change log.</li>
+                            <li>Document all reference tables and their maintenance procedures.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Key Maintenance Scripts</h3>
+                <details>
+                    <summary>Data Quality Check <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-sql">CREATE PROCEDURE sp_swo_data_quality_check
+AS
+BEGIN
+    -- Check for missing Site_IDs
+    IF EXISTS (SELECT 1 FROM swo WHERE Site_ID IS NULL)
+    RAISERROR('Null Site_ID detected', 16, 1);
+    -- Validate coordinate ranges
+    DECLARE @bad_coords INT = (
+        SELECT COUNT(*) FROM swo
+        WHERE Candidate_Latitude NOT BETWEEN -90 AND 90
+           OR Candidate_Longitude NOT BETWEEN -180 AND 180
+    );
+
+    IF @bad_coords > 0
+    RAISERROR('Invalid coordinates detected', 16, 1);
+
+    -- Check date consistency
+    IF EXISTS (
+        SELECT 1 FROM swo
+        WHERE Site_Hand_Over_Date_MS_11_10_1 &lt; TPAC_Date_MS_11_9_2
+    )
+        RAISERROR('Illogical date sequence found', 16, 1);
+END</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Performance Optimization <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-sql">-- Recommended indexes
+CREATE INDEX idx_swo_location ON swo(State_Division, Township);
+CREATE INDEX idx_swo_tech ON swo(Technology, Transmission_Type);
+CREATE INDEX idx_cax_date ON cax(Date);
+CREATE INDEX idx_site_down_time ON site_down_tbl(Raise_Time);</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Automated Reporting <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-python">def generate_daily_ops_report(): # Connect to DB
+    conn = pyodbc.connect(CONN_STRING)
+    # Site status summary
+    status_query = """
+    SELECT
+        m.State_Division,
+        COUNT(CASE WHEN m.CA_RANGE = '0-50 RANGE' THEN 1 END) as poor_perf_sites,
+        COUNT(CASE WHEN sd.Site_ID IS NOT NULL THEN 1 END) as outage_sites,
+        COUNT(*) as total_sites
+    FROM monitoring_tbl m
+    LEFT JOIN site_down_tbl sd ON m.Site_ID = sd.Site_ID
+    GROUP BY m.State_Division
+    """
+
+    # Hardware alarm analysis
+    hardware_query = """
+    SELECT
+        Board_Type,
+        Issue_status,
+        COUNT(*) as alarm_count
+    FROM hardware_alarm_tbl
+    WHERE Raised_Time > DATEADD(day, -7, GETDATE())
+    GROUP BY Board_Type, Issue_status
+    """
+
+    # Generate Excel report
+    with pd.ExcelWriter('daily_ops_report.xlsx') as writer:
+        pd.read_sql(status_query, conn).to_excel(writer, sheet_name='Site Status')
+        pd.read_sql(hardware_query, conn).to_excel(writer, sheet_name='Hardware Alarms')
+
+    # Email distribution
+    send_email(
+        recipients=['ops-team@company.com'],
+        subject='Daily Operations Report',
+        body='Attached is the daily operations summary',
+        attachments=['daily_ops_report.xlsx']
+    )</code></pre>
+                    </div>
+                </details>
+            </section>
+
+            <section id="data-model">
+                <h2>🧩 Data Model & ERD</h2>
+                <div class="mermaid">
+                    erDiagram
+                        SWO {
+                            string site_id PK
+                            nvarchar site_name
+                            nvarchar state_division
+                            nvarchar township
+                            date site_on_air_date
+                        }
+
+                        CA_Results {
+                            int record_id PK
+                            nvarchar site_id FK
+                            date test_date
+                            decimal score
+                        }
+
+                        Hardware_Alarms {
+                            int alarm_id PK
+                            nvarchar site_id FK
+                            nvarchar alarm_code
+                            datetime raised_time
+                        }
+
+                        SWO ||--o{ CA_Results : "1:N"
+                        SWO ||--o{ Hardware_Alarms : "1:N"
+                </div>
+                <h3>Overall Data Flow</h3>
+                <div class="mermaid">
+                    graph LR
+                      root((**SWO System**))
+
+                      subgraph DB[Database]
+                        swo_tbl[SWO Table]
+                        pic_tbl[PIC Table]
+                        interval_tbl[Interval Report Table]
+                        site_down_tbl[Site Down Table]
+                        hardware_tbl[Hardware Alarm Table]
+                        cax_tbl[CAX Table]
+                        monitoring_vw[Monitoring View]
+                      end
+
+                      subgraph ETL[Data Flow]
+                        outlook[MS Outlook]
+                        omcr[OMCR Reports]
+                        mocca[MOC CA Reports]
+                        hw_alarms[Hardware Alarm Files]
+                      end
+
+                      subgraph Proc[Processing]
+                        py_sql[Python and SQL Scripts]
+                      end
+
+                      subgraph Out[Outputs]
+                        reports[Monitoring Reports]
+                        dashboards[Analysis Dashboards]
+                      end
+
+                      outlook --> py_sql --> swo_tbl
+                      omcr --> py_sql --> interval_tbl --> site_down_tbl
+                      mocca --> py_sql --> cax_tbl
+                      hw_alarms --> py_sql --> hardware_tbl
+                      pic_tbl --> monitoring_vw
+
+                      swo_tbl & site_down_tbl & cax_tbl & hardware_tbl & pic_tbl --> monitoring_vw --> reports & dashboards
+                </div>
+            </section>
+
+            <section id="tables">
+                <h2>🗃️ System Tables</h2>
+
+                <details>
+                    <summary>pic_tbl (Person In Charge Table) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Track responsible personnel by region.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>State_Division</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Geographical state or division.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Sub_office</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Specific sub-office within the division.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Contact_Person</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Name of the person in charge.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Contact_Number</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Contact number of the person in charge.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE pic_tbl (
+    State_Division NVARCHAR(100),
+    Sub_office NVARCHAR(100),
+    Contact_Person NVARCHAR(100),
+    Contact_Number NVARCHAR(50)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>State_Division</th>
+                                        <th>Sub_office</th>
+                                        <th>Contact_Person</th>
+                                        <th>Contact_Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Yangon</td>
+                                        <td>Central</td>
+                                        <td>Aung Myo</td>
+                                        <td>+95912345678</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mandalay</td>
+                                        <td>North</td>
+                                        <td>Hnin Thazin</td>
+                                        <td>+95987654321</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Usage:</strong> Linked to monitoring_tbl for issue escalation.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>interval_report_tbl <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Capture 2-hour interval outage reports.</p>
+                        <p><strong>Source:</strong> OMCR team via Viber/Telegram</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Report_ID</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Unique identifier for the report (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Identifier for the affected site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Revenue_Status</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Site revenue status (e.g., 'Active', 'Down').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Alarm_Name</code></td>
+                                        <td><code>NVARCHAR(255)</code></td>
+                                        <td>Name of the alarm triggered.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Raise_Time</code></td>
+                                        <td><code>DATETIME</code></td>
+                                        <td>Timestamp when the outage was raised.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Duration_Minutes</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Duration of the outage in minutes.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Outage_Type</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Classification of the outage (e.g., 'Power', 'Fiber Cut').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Root_Cause</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Detailed root cause of the outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Township</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Township where the site is located.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Sub_Office</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Sub-office responsible for the site.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE interval_report_tbl (
+    Report_ID INT PRIMARY KEY IDENTITY(1,1),
+    Site_ID NVARCHAR(50),
+    Revenue_Status NVARCHAR(50),
+    Alarm_Name NVARCHAR(255),
+    Raise_Time DATETIME,
+    Duration_Minutes INT,
+    Outage_Type NVARCHAR(100),
+    Root_Cause NVARCHAR(500),
+    Township NVARCHAR(100),
+    Sub_Office NVARCHAR(100)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Report_ID</th>
+                                        <th>Site_ID</th>
+                                        <th>Revenue_Status</th>
+                                        <th>Alarm_Name</th>
+                                        <th>Raise_Time</th>
+                                        <th>Duration_Minutes</th>
+                                        <th>Outage_Type</th>
+                                        <th>Root_Cause</th>
+                                        <th>Township</th>
+                                        <th>Sub_Office</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>SITE001</td>
+                                        <td>Down</td>
+                                        <td>Power Failure</td>
+                                        <td>2023-07-01 10:00:00</td>
+                                        <td>120</td>
+                                        <td>Power</td>
+                                        <td>Generator fault</td>
+                                        <td>Hlaing</td>
+                                        <td>Yangon West</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>SITE005</td>
+                                        <td>Down</td>
+                                        <td>Fiber Cut</td>
+                                        <td>2023-07-01 14:30:00</td>
+                                        <td>60</td>
+                                        <td>Network</td>
+                                        <td>Accidental cable cut</td>
+                                        <td>Pyinmana</td>
+                                        <td>Naypyidaw</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>site_down_tbl <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Persistent record of site outages.</p>
+                        <p><strong>Population:</strong> Typically populated from <code>interval_report_tbl</code>.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Site_Down_ID</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Unique identifier for the site down event (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Identifier for the affected site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Raise_Time</code></td>
+                                        <td><code>DATETIME</code></td>
+                                        <td>Timestamp when the outage was raised.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Outage_Type</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Classification of the outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Root_Cause</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Detailed root cause of the outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Resolution_Time</code></td>
+                                        <td><code>DATETIME</code></td>
+                                        <td>Timestamp when the outage was resolved (can be NULL).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Duration_Hours</code></td>
+                                        <td><code>DECIMAL(10,2)</code></td>
+                                        <td>Calculated duration of the outage in hours.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE site_down_tbl (
+    Site_Down_ID INT PRIMARY KEY IDENTITY(1,1),
+    Site_ID NVARCHAR(50),
+    Raise_Time DATETIME,
+    Outage_Type NVARCHAR(100),
+    Root_Cause NVARCHAR(500),
+    Resolution_Time DATETIME NULL,
+    Duration_Hours DECIMAL(10,2)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Site_Down_ID</th>
+                                        <th>Site_ID</th>
+                                        <th>Raise_Time</th>
+                                        <th>Outage_Type</th>
+                                        <th>Root_Cause</th>
+                                        <th>Resolution_Time</th>
+                                        <th>Duration_Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>101</td>
+                                        <td>SITE001</td>
+                                        <td>2023-07-01 10:00:00</td>
+                                        <td>Power</td>
+                                        <td>Generator fault</td>
+                                        <td>2023-07-01 12:00:00</td>
+                                        <td>2.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>102</td>
+                                        <td>SITE005</td>
+                                        <td>2023-07-01 14:30:00</td>
+                                        <td>Network</td>
+                                        <td>Accidental cable cut</td>
+                                        <td>NULL</td>
+                                        <td>NULL</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Enhancements:</strong> Inherits all interval_report columns plus SWO-derived fields.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>cax (CA Execution Table) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Store Call Attempt success rates.</p>
+                        <p><strong>ETL Process:</strong></p>
+                        <ul>
+                            <li>Receive MOC_CA Excel report</li>
+                            <li>Melt from wide to long format</li>
+                            <li>Clean date formats</li>
+                            <li>Calculate derived fields (Week, MonthName)</li>
+                            <li>Enrich with SWO data</li>
+                        </ul>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>CA_Record_ID</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Unique identifier for the CA record (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Identifier for the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CA_Date</code></td>
+                                        <td><code>DATE</code></td>
+                                        <td>Date of the Call Attempt measurement.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CA_Result</code></td>
+                                        <td><code>DECIMAL(5,2)</code></td>
+                                        <td>Call Attempt success rate percentage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CA_Range</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Categorized performance range (e.g., '0-50 RANGE', '50-80 RANGE').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Week_Number</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>ISO week number of the CA_Date.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Month_Name</code></td>
+                                        <td><code>NVARCHAR(20)</code></td>
+                                        <td>Full month name of the CA_Date.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE cax (
+    CA_Record_ID INT PRIMARY KEY IDENTITY(1,1),
+    Site_ID NVARCHAR(50),
+    CA_Date DATE,
+    CA_Result DECIMAL(5,2),
+    CA_Range NVARCHAR(50),
+    Week_Number INT,
+    Month_Name NVARCHAR(20)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>CA_Record_ID</th>
+                                        <th>Site_ID</th>
+                                        <th>CA_Date</th>
+                                        <th>CA_Result</th>
+                                        <th>CA_Range</th>
+                                        <th>Week_Number</th>
+                                        <th>Month_Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>201</td>
+                                        <td>SITE001</td>
+                                        <td>2023-07-01</td>
+                                        <td>75.50</td>
+                                        <td>50-80 RANGE</td>
+                                        <td>26</td>
+                                        <td>July</td>
+                                    </tr>
+                                    <tr>
+                                        <td>202</td>
+                                        <td>SITE002</td>
+                                        <td>2023-07-01</td>
+                                        <td>45.20</td>
+                                        <td>0-50 RANGE</td>
+                                        <td>26</td>
+                                        <td>July</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Key Metrics:</strong></p>
+                        <ul>
+                            <li>CA_Result: Decimal percentage</li>
+                            <li>CA_Range: Binned performance categories</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>hardware_alarm_tbl <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Track equipment failure incidents.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Identifier for the site (Part of Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Render</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Rendering information.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Region</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Geographical region.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>On_air_status</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Current on-air status of the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Township</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Township of the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>LSP</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Last Service Provider responsible.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Alarm_Code</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Specific alarm code (Part of Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Raised_Time</code></td>
+                                        <td><code>DATETIME2</code></td>
+                                        <td>Timestamp when the alarm was raised (Part of Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Board_Type</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Type of hardware board affected.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Status</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Current status of the alarm (e.g., 'Open', 'Closed', 'Resolved').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Descriptions</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Detailed description of the alarm.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Week</code></td>
+                                        <td><code>NVARCHAR(10)</code></td>
+                                        <td>Week identifier.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Category</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Alarm category (e.g., 'Baseband', 'Radio').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Sub_Category</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Sub-category of the alarm.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Issue_status</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Current issue status.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>LSP_Remark</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Remarks from the Last Service Provider.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Root_Cause</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Root cause of the hardware alarm.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Action_Plan_Progress</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Progress of the action plan.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Target_Plan_Date</code></td>
+                                        <td><code>DATE</code></td>
+                                        <td>Target date for resolution.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Load_Date</code></td>
+                                        <td><code>DATETIME2</code></td>
+                                        <td>Date when the record was loaded (Default: GETDATE()).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE hardware_alarm_tbl (
+    Site_ID NVARCHAR(50) NOT NULL,
+    Render NVARCHAR(100),
+    Region NVARCHAR(100),
+    On_air_status NVARCHAR(50),
+    Township NVARCHAR(100),
+    LSP NVARCHAR(100),
+    Alarm_Code NVARCHAR(50) NOT NULL,
+    Raised_Time DATETIME2 NOT NULL,
+    Board_Type NVARCHAR(100),
+    Status NVARCHAR(50),
+    Descriptions NVARCHAR(500),
+    Week NVARCHAR(10),
+    Category NVARCHAR(100),
+    Sub_Category NVARCHAR(100),
+    Issue_status NVARCHAR(50),
+    LSP_Remark NVARCHAR(500),
+    Root_Cause NVARCHAR(500),
+    Action_Plan_Progress NVARCHAR(500),
+    Target_Plan_Date DATE,
+    Load_Date DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT PK_HardwareAlarms PRIMARY KEY (Site_ID, Alarm_Code, Raised_Time)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Site_ID</th>
+                                        <th>Alarm_Code</th>
+                                        <th>Raised_Time</th>
+                                        <th>Board_Type</th>
+                                        <th>Status</th>
+                                        <th>Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>SITE003</td>
+                                        <td>HW001</td>
+                                        <td>2023-07-05 08:30:00</td>
+                                        <td>BBU</td>
+                                        <td>Open</td>
+                                        <td>Baseband</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SITE004</td>
+                                        <td>HW002</td>
+                                        <td>2023-07-06 11:00:00</td>
+                                        <td>RRU</td>
+                                        <td>Open</td>
+                                        <td>Radio</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>Hardware Alarm Workflow Overview</h3>
+                        <p><strong>Data Collection</strong></p>
+                        <ul>
+                            <li><strong>Source:</strong> Internal system sharing (typically CSV/Excel files)</li>
+                            <li><strong>Frequency:</strong> Weekly (every Monday for previous week's data)</li>
+                            <li><strong>File Naming Convention:</strong> HW_Alarms_YYYY_MM_DD_to_YYYY_MM_DD.xlsx</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>monitoring_tbl (View) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Consolidated operational dashboard view.</p>
+                        <p>This is a SQL View, integrating data from multiple tables for comprehensive monitoring.</p>
+                        <h3>Schema Details (Derived)</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Source Table</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td><code>swo</code></td>
+                                        <td>Unique identifier for the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Site_Name</code></td>
+                                        <td><code>NVARCHAR(255)</code></td>
+                                        <td><code>swo</code></td>
+                                        <td>Name of the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>State_Division</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td><code>swo</code></td>
+                                        <td>Geographical state or division.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Township</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td><code>swo</code></td>
+                                        <td>Township where the site is located.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Raise_Time</code></td>
+                                        <td><code>DATETIME</code></td>
+                                        <td><code>site_down_tbl</code></td>
+                                        <td>Timestamp of the latest outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Outage_Type</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td><code>site_down_tbl</code></td>
+                                        <td>Type of the latest outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Root_Cause</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td><code>site_down_tbl</code></td>
+                                        <td>Root cause of the latest outage.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CA_Result</code></td>
+                                        <td><code>DECIMAL(5,2)</code></td>
+                                        <td><code>cax</code></td>
+                                        <td>Latest Call Attempt success rate.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CA_Range</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td><code>cax</code></td>
+                                        <td>Categorized CA performance.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Time_Bucket</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Derived</td>
+                                        <td>Categorization of outage duration (e.g., 'Short', 'Medium', 'Long').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Issue_Identity</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Derived</td>
+                                        <td>Identified issue type based on combined data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE VIEW Statement</h3>
+                        <pre><code class="language-sql">CREATE VIEW monitoring_tbl AS
+SELECT
+    s.*, -- Select all columns from the SWO table
+    sd.Raise_Time,
+    sd.Outage_Type,
+    sd.Root_Cause,
+    c.CA_Result,
+    c.CA_Range,
+    -- Example of derived fields (simplified for brevity)
+    CASE
+        WHEN DATEDIFF(hour, sd.Raise_Time, GETDATE()) &lt;= 4 THEN 'Short Outage'
+        WHEN DATEDIFF(hour, sd.Raise_Time, GETDATE()) &lt;= 12 THEN 'Medium Outage'
+        ELSE 'Long Outage'
+    END AS Time_Bucket,
+    CASE
+        WHEN sd.Outage_Type = 'Power' THEN 'Power Issue'
+        WHEN c.CA_Result &lt; 50 THEN 'Performance Issue'
+        ELSE 'General Issue'
+    END AS Issue_Identity
+FROM swo s
+LEFT JOIN site_down_tbl sd ON s.Site_ID = sd.Site_ID
+LEFT JOIN cax c ON s.Site_ID = c.Site_ID;</code></pre>
+                        <h3>Example Data (Conceptual)</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Site_ID</th>
+                                        <th>State_Division</th>
+                                        <th>Raise_Time</th>
+                                        <th>CA_Result</th>
+                                        <th>Time_Bucket</th>
+                                        <th>Issue_Identity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>SITE001</td>
+                                        <td>Yangon</td>
+                                        <td>2023-07-01 10:00:00</td>
+                                        <td>75.50</td>
+                                        <td>Short Outage</td>
+                                        <td>Power Issue</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SITE002</td>
+                                        <td>Mandalay</td>
+                                        <td>NULL</td>
+                                        <td>45.20</td>
+                                        <td>NULL</td>
+                                        <td>Performance Issue</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>sh_handover_tbl <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Document site handover events.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Handover_ID</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Unique identifier for the handover event (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Site_ID</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Identifier for the site.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Handover_Date</code></td>
+                                        <td><code>DATE</code></td>
+                                        <td>Date of the site handover.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>RFO_Description</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Raw Reason For Outage description.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Standardized_RFO</code></td>
+                                        <td><code>NVARCHAR(255)</code></td>
+                                        <td>Standardized RFO after fuzzy matching.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Delay_Reason</code></td>
+                                        <td><code>NVARCHAR(255)</code></td>
+                                        <td>Categorized reason for any handover delays.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Duration_Days</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Duration of the handover process in days.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE sh_handover_tbl (
+    Handover_ID INT PRIMARY KEY IDENTITY(1,1),
+    Site_ID NVARCHAR(50),
+    Handover_Date DATE,
+    RFO_Description NVARCHAR(500),
+    Standardized_RFO NVARCHAR(255),
+    Delay_Reason NVARCHAR(255),
+    Duration_Days INT
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Handover_ID</th>
+                                        <th>Site_ID</th>
+                                        <th>Handover_Date</th>
+                                        <th>Standardized_RFO</th>
+                                        <th>Duration_Days</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>301</td>
+                                        <td>SITE006</td>
+                                        <td>2023-06-15</td>
+                                        <td>Site Access Issue</td>
+                                        <td>7</td>
+                                    </tr>
+                                    <tr>
+                                        <td>302</td>
+                                        <td>SITE007</td>
+                                        <td>2023-06-20</td>
+                                        <td>Equipment Fault</td>
+                                        <td>3</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Key Process:</strong></p>
+                        <ul>
+                            <li>Apply fuzzy matching to standardize RFOs.</li>
+                            <li>Calculate duration metrics.</li>
+                            <li>Categorize delay reasons.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>std_rfo_tbl (Standardized Reason For Outage Table) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Standardized Reason For Outage catalog.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>RFO_Code</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Unique code for the RFO (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Root_Cause_Category</code></td>
+                                        <td><code>NVARCHAR(255)</code></td>
+                                        <td>Broad category of the root cause (e.g., 'BTS', 'CPRI').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Priority</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Priority level of the RFO (e.g., 'Critical', 'High', 'Medium').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Description</code></td>
+                                        <td><code>NVARCHAR(500)</code></td>
+                                        <td>Detailed description of the standardized RFO.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE std_rfo_tbl (
+    RFO_Code NVARCHAR(50) PRIMARY KEY,
+    Root_Cause_Category NVARCHAR(255),
+    Priority NVARCHAR(50),
+    Description NVARCHAR(500)
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>RFO_Code</th>
+                                        <th>Root_Cause_Category</th>
+                                        <th>Priority</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>00001</td>
+                                        <td>BTS, CPRI</td>
+                                        <td>Critical</td>
+                                        <td>Base Transceiver Station (BTS) or Common Public Radio Interface (CPRI) related issue.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>00002</td>
+                                        <td>Power, Battery</td>
+                                        <td>High</td>
+                                        <td>Power supply or battery system failure.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>hubnet_tbl (Network Path Mapping Table) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <p><strong>Purpose:</strong> Network path mapping.</p>
+                        <h3>Schema Details</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>Path_ID</code></td>
+                                        <td><code>INT</code></td>
+                                        <td>Unique identifier for the network path (Primary Key).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>REF_Site</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Reference site for the network path.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Pathing_1</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>First hop or segment in the network path.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Route_to_Route_Tsp_1</code></td>
+                                        <td><code>NVARCHAR(100)</code></td>
+                                        <td>Township of the first route segment.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Connectivity_Status</code></td>
+                                        <td><code>NVARCHAR(50)</code></td>
+                                        <td>Current connectivity status (e.g., 'Active', 'Degraded', 'Down').</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>Last_Checked</code></td>
+                                        <td><code>DATETIME</code></td>
+                                        <td>Timestamp of the last connectivity check.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h3>CREATE TABLE Statement</h3>
+                        <pre><code class="language-sql">CREATE TABLE hubnet_tbl (
+    Path_ID INT PRIMARY KEY IDENTITY(1,1),
+    REF_Site NVARCHAR(50),
+    Pathing_1 NVARCHAR(100),
+    Route_to_Route_Tsp_1 NVARCHAR(100),
+    Connectivity_Status NVARCHAR(50),
+    Last_Checked DATETIME
+);</code></pre>
+                        <h3>Example Data</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Path_ID</th>
+                                        <th>REF_Site</th>
+                                        <th>Pathing_1</th>
+                                        <th>Connectivity_Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>401</td>
+                                        <td>HUB001</td>
+                                        <td>Link_A_B</td>
+                                        <td>Active</td>
+                                    </tr>
+                                    <tr>
+                                        <td>402</td>
+                                        <td>HUB002</td>
+                                        <td>Link_C_D</td>
+                                        <td>Degraded</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Relationship Tracking:</strong></p>
+                        <ul>
+                            <li>REF_Site → Pathing_1 → Route_to_Route_Tsp_1</li>
+                            <li>Connectivity status indicators</li>
+                        </ul>
+                    </div>
+                </details>
+            </section>
+
+            <section id="workflows">
+                <h2>🔧 System Workflows</h2>
+
+                <details>
+                    <summary>Monthly SWO Update Process <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <h3>Data Extraction</h3>
+                        <ul>
+                            <li>Locate Outlook shared folder: <code>\\outlook\shared\swo_updates\</code></li>
+                            <li>Download <code>YYYY_MM_SWO_Update.xlsx</code></li>
+                        </ul>
+                        <h3>Data Preparation:</h3>
+                        <pre><code class="language-python">def clean_swo_data(df): # Standardize Site_ID format
+    df['Site_ID'] = df['Site_ID'].str.upper().str.strip()
+
+    # Convert coordinate fields
+    df['Candidate_Latitude'] = pd.to_numeric(df['Candidate_Latitude'])
+    df['Candidate_Longitude'] = pd.to_numeric(df['Candidate_Longitude'])
+
+    # Validate date fields
+    date_cols = ['Site_On_Air_MS_11_8', 'TPAC_Date_MS_11_9_2']
+    df[date_cols] = df[date_cols].apply(pd.to_datetime, errors='coerce')
+
+    return df</code></pre>
+                        <h3>Database Update:</h3>
+                        <pre><code class="language-sql">BEGIN TRANSACTION;
+
+-- Backup existing data
+SELECT * INTO swo_backup_YYYYMM FROM swo;
+
+-- Clear and reload
+TRUNCATE TABLE swo;
+
+BULK INSERT swo
+FROM 'D:\processed_data\swo_update.csv'
+WITH (
+    FIELDTERMINATOR = ',',
+    ROWTERMINATOR = '\n',
+    FIRSTROW = 2
+);
+
+-- Validate counts
+DECLARE @expected INT = (SELECT COUNT(*) FROM swo_backup_YYYYMM);
+DECLARE @actual INT = (SELECT COUNT(*) FROM swo);
+
+IF @expected = @actual
+    COMMIT TRANSACTION;
+ELSE
+    ROLLBACK TRANSACTION;
+    RAISERROR('Count mismatch detected', 16, 1);</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Interval Report Processing <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <h3>File Acquisition:</h3>
+                        <ul>
+                            <li>Monitor Telegram channel for new reports</li>
+                            <li>Download with timestamp: <code>INT_REPORT_YYYYMMDD_HHMM.csv</code></li>
+                        </ul>
+                        <h3>Data Enhancement</h3>
+                        <pre><code class="language-python">def enhance_interval_report(df): # Apply fuzzy RFO matching
+    detector = RFODetector()
+    df[['RFO_Code', 'Refinated_RFO']] = df['Root_Cause'].apply(
+    lambda x: pd.Series(detector.detect_rfo_expression(x))
+    )
+
+    # Calculate duration
+    df['Duration'] = df['Current_Time'] - df['Raise_Time']
+
+    # Categorize outage
+    df['Outage_Range'] = pd.cut(
+        df['Duration'].dt.total_seconds()/3600,
+        bins=[0, 4, 12, 24, 48, float('inf')],
+        labels=['0-4h', '4-12h', '12-24h', '1-2d', '2d+']
+    )
+
+    return df</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>MOC CA Report Processing <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <h3>Data Transformation</h3>
+                        <pre><code class="language-python">def process_moc_ca(file_path):
+    df = pd.read_excel(file_path)
+
+    # Standardize column names
+    df = df.rename(columns={'Site ID': 'Site_ID'})
+
+    # Melt wide format to long
+    melted = pd.melt(
+        df,
+        id_vars=['Site_ID'],
+        var_name='Date',
+        value_name='CA_Result'
+    )
+
+    # Clean dates
+    melted['Date'] = pd.to_datetime(melted['Date'], errors='coerce')
+    melted['Week'] = melted['Date'].dt.strftime('W%U')
+
+    return melted</code></pre>
+                    </div>
+                </details>
+
+                <h3>Hardware Alarm Weekly ETL Process</h3>
+                <details>
+                    <summary>Data Extraction <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-python">def get_hardware_alarms(week_start_date): # Calculate week range
+    week_end_date = week_start_date + timedelta(days=6)
+    # Connect to source system:
+
+    source_path = f"//network/share/hw_alarms/HW_Alarms_{week_start_date:%Y_%m_%d}_to_{week_end_date:%Y_%m_%d}.xlsx"
+
+    try:
+        df = pd.read_excel(
+            source_path,
+            sheet_name='Active Alarms',
+            parse_dates=['Raised_Time', 'Target_Plan_Date']
+        )
+        df['Week'] = f"Week {week_start_date.isocalendar()[1]}"
+        return df
+    except Exception as e:
+        log_error(f"Hardware alarm extraction failed: {str(e)}")
+        raise</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Data Transformation <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-python">def transform_hardware_alarms(raw_df): # Standardize fields
+    transformations = {
+    'Site ID': ('Site_ID', lambda x: x.upper().strip()),
+    'Alarm Description': ('Descriptions', str),
+    'Planned Resolution Date': ('Target_Plan_Date', pd.to_datetime)
+    }
+    for old, (new, func) in transformations.items():
+        raw_df[new] = raw_df[old].apply(func)
+
+    # Categorize alarms
+    category_mapping = {
+        'BBU': 'Baseband',
+        'RRU': 'Radio',
+        'Power': 'Infrastructure'
+    }
+
+    raw_df['Category'] = raw_df['Board_Type'].map(category_mapping).fillna('Other')
+
+    # Add derived fields
+    raw_df['Sub_Category'] = raw_df['Descriptions'].apply(
+        lambda x: x.split(':')[0] if ':' in x else 'General'
+    )
+
+    return raw_df[hardware_alarm_columns]  # Defined list of target columns</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Database Load <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-sql">-- Weekly Load Procedure
+CREATE PROCEDURE sp_load_hardware_alarms
+@week_start_date DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+
+    -- Clear existing data for the week
+    DELETE FROM hardware_alarm_tbl
+    WHERE Raised_Time BETWEEN @week_start_date AND DATEADD(day, 6, @week_start_date);
+
+    -- Insert new records
+    INSERT INTO hardware_alarm_tbl (
+        Site_ID, Render, Region, On_air_status, Township, LSP,
+        Alarm_Code, Raised_Time, Board_Type, Status, Descriptions,
+        Week, Category, Sub_Category, Issue_status, LSP_Remark,
+        Root_Cause, Action_Plan_Progress, Target_Plan_Date
+    )
+    SELECT
+        Site_ID, Render, Region, On_air_status, Township, LSP,
+        Alarm_Code, Raised_Time, Board_Type, Status, Descriptions,
+        Week, Category, Sub_Category, Issue_status, LSP_Remark,
+        Root_Cause, Action_Plan_Progress, Target_Plan_Date
+    FROM #temp_hardware_alarms;
+
+    -- Update monitoring table references
+    EXEC sp_refresh_hardware_alarm_references;
+
+    COMMIT TRANSACTION;
+END</code></pre>
+                    </div>
+                </details>
+
+                <h3>Hardware Alarm Weekly Reporting</h3>
+                <details>
+                    <summary>Aging Analysis Report <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-sql">SELECT
+    Board_Type,
+    Issue_status,
+    DATEDIFF(day, Raised_Time, GETDATE()) as days_open,
+    COUNT(*) as alarm_count
+FROM hardware_alarm_tbl
+WHERE
+    Status NOT IN ('Closed', 'Resolved')
+    AND Raised_Time >= DATEADD(week, -4, GETDATE())
+GROUP BY
+    Board_Type,
+    Issue_status,
+    DATEDIFF(day, Raised_Time, GETDATE())
+ORDER BY
+    days_open DESC;</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Resolution Performance <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <pre><code class="language-python">def generate_hardware_weekly_report():
+    conn = get_db_connection()
+
+    # Resolution metrics
+    resolution_df = pd.read_sql("""
+        SELECT
+            LSP,
+            COUNT(*) as total_alarms,
+            AVG(DATEDIFF(hour, Raised_Time,
+                CASE WHEN Status = 'Closed' THEN GETDATE() ELSE NULL END)) as avg_resolution_hours,
+            SUM(CASE WHEN Status = 'Closed' THEN 1 ELSE 0 END) as closed_count
+        FROM hardware_alarm_tbl
+        WHERE Week = DATEPART(week, GETDATE()) - 1
+        GROUP BY LSP
+    """, conn)
+
+    # Trend analysis
+    trend_df = pd.read_sql("""
+        SELECT
+            Board_Type,
+            Category,
+            DATEPART(week, Raised_Time) as week_number,
+            COUNT(*) as alarm_count
+        FROM hardware_alarm_tbl
+        WHERE Raised_Time >= DATEADD(week, -8, GETDATE())
+        GROUP BY Board_Type, Category, DATEPART(week, GETDATE())
+    """, conn)
+
+    # Create Excel report
+    with pd.ExcelWriter(f"HW_Alarms_Report_{datetime.now():%Y%m%d}.xlsx") as writer:
+        resolution_df.to_excel(writer, sheet_name='Resolution Metrics')
+        trend_df.to_excel(writer, sheet_name='Trend Analysis')
+
+        # Add pivot table
+        pivot = trend_df.pivot_table(
+            index=['Board_Type', 'Category'],
+            columns='week_number',
+            values='alarm_count',
+            aggfunc='sum'
+        )
+        pivot.to_excel(writer, sheet_name='Pivot View')</code></pre>
+                    </div>
+                </details>
+
+                <h3>Integration with Other Systems</h3>
+                <div class="mermaid">
+                    flowchart TB
+                    A[Hardware Alarm Sources] -->|Weekly Files| B(ETL Process)
+                    B --> C[hardware_alarm_tbl]
+                    C --> D[Monitoring Dashboard]
+                    C --> E[Vendor Performance Reports]
+                    C --> F[Root Cause Analysis]
+                    D --> G[Operational Decisions]
+                    E --> H[Vendor Management]
+                    F --> I[Preventive Maintenance]
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>🛠️ Troubleshooting Guide</h2>
+                <div class="styled-box warning">
+                    <h3>Issue Resolution Steps</h3>
+                    <p><strong>Missing SWO updates</strong></p>
+                    <ol>
+                        <li>Check Outlook shared folder permissions</li>
+                        <li>Verify email filters</li>
+                        <li>Contact regional coordinators (Responsible Team: Data Operations)</li>
+                    </ol>
+                    <p><strong>Interval report delays</strong></p>
+                    <ol>
+                        <li>Ping OMCR team on Telegram</li>
+                        <li>Check automated download scripts</li>
+                        <li>Verify file naming conventions (Responsible Team: NOC Team)</li>
+                    </ol>
+                    <p><strong>CAX data mismatch</strong></p>
+                    <ol>
+                        <li>Validate date formats in source</li>
+                        <li>Check melting procedure</li>
+                        <li>Verify join conditions with SWO (Responsible Team: Data Engineering)</li>
+                    </ol>
+                    <p><strong>Performance issues</strong></p>
+                    <ol>
+                        <li>Rebuild indexes</li>
+                        <li>Check query plans</li>
+                        <li>Archive old data (Responsible Team: DBA Team)</li>
+                    </ol>
+                </div>
+                <h3>Key Maintenance Tasks</h3>
+                <details>
+                    <summary>Weekly Checklist <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content">
+                        <h4>Pre-Load Validation</h4>
+                        <ul>
+                            <li>Verify file completeness (expected sites, date range)</li>
+                            <li>Check for duplicate alarm entries</li>
+                            <li>Validate critical field formats (Site_ID, Raised_Time)</li>
+                        </ul>
+                        <h4>Post-Load Verification</h4>
+                        <pre><code class="language-sql">-- Count comparison
+DECLARE @source_count INT = (SELECT COUNT(*) FROM #temp_hardware_alarms);
+DECLARE @loaded_count INT = (SELECT COUNT(*) FROM hardware_alarm_tbl
+WHERE Load_Date > GETDATE()-1);
+
+IF @source_count != @loaded_count
+RAISERROR('Count mismatch between source and loaded data', 16, 1);</code></pre>
+                        <h4>Data Quality Monitoring</h4>
+                        <pre><code class="language-sql">-- Missing resolution plans
+SELECT COUNT(*)
+FROM hardware_alarm_tbl
+WHERE
+Status NOT IN ('Closed', 'Resolved')
+AND (Action_Plan_Progress IS NULL OR Target_Plan_Date IS NULL);</code></pre>
+                    </div>
+                </details>
+                <details>
+                    <summary>Troubleshooting Guide (Detailed) <i class="fas fa-chevron-right icon"></i></summary>
+                    <div class="accordion-content styled-box danger">
+                        <p><strong>Symptom:</strong> Missing alarm records<br>
+                        <strong>Possible Cause:</strong> Incorrect date filter in source file<br>
+                        <strong>Resolution:</strong> Verify source file covers full week</p>
+                        <p><strong>Symptom:</strong> Duplicate entries<br>
+                        <strong>Possible Cause:</strong> Same alarm code for same site at same time<br>
+                        <strong>Resolution:</strong> Add constraint to prevent duplicates</p>
+                        <p><strong>Symptom:</strong> Long load times<br>
+                        <strong>Possible Cause:</strong> Unindexed date fields<br>
+                        <strong>Resolution:</strong> Create index on Raised_Time</p>
+                        <p><strong>Symptom:</strong> Board_Type misclassification<br>
+                        <strong>Possible Cause:</strong> New hardware types not in mapping table<br>
+                        <strong>Resolution:</strong> Update category mapping table</p>
+                    </div>
+                </details>
+            </section>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>Last updated: July 2023 | Contact: support@swo-system.com</p>
+    </footer>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default', // You can try 'dark', 'forest', 'neutral'
+            flowchart: { useMaxWidth: true, htmlLabels: true },
+            securityLevel: 'loose' // Needed for external links in diagrams
+        });
+
+        // Copy button functionality
+        document.querySelectorAll('pre').forEach((pre) => {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.innerHTML = '<i class="far fa-copy"></i> Copy'; // Icon + text
+            button.addEventListener('click', () => {
+                // Find the code element within the pre tag
+                const codeElement = pre.querySelector('code');
+                if (codeElement) {
+                    const code = codeElement.textContent;
+                    // Use execCommand for broader compatibility in iframes
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        button.innerHTML = '<i class="fas fa-times"></i> Error!';
+                    }
+                    document.body.removeChild(textarea);
+
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="far fa-copy"></i> Copy';
+                    }, 2000);
+                }
+            });
+            pre.appendChild(button);
+        });
+
+        // Sidebar active link highlighting and smooth scrolling
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.sidebar nav ul li a');
+            const sections = document.querySelectorAll('.main-content section'); // This selector is incorrect in the original HTML. It should be sections within right-content-wrapper.
+
+            // Corrected selector for sections to observe
+            const observableSections = document.querySelectorAll('.right-content-wrapper section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.3 // Adjust as needed, percentage of section visible
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === '#' + entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            observableSections.forEach(section => { // Use the corrected selector here
+                observer.observe(section);
+            });
+
+            // Smooth scroll for navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            // Corrected selector for searchable sections
+            const searchableSections = document.querySelectorAll('.right-content-wrapper section');
+
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = searchInput.value.toLowerCase();
+
+                searchableSections.forEach(section => {
+                    const sectionText = section.textContent.toLowerCase();
+                    if (sectionText.includes(searchTerm)) {
+                        section.style.display = 'block'; // Show section
+                    } else {
+                        section.style.display = 'none'; // Hide section
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
